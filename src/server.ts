@@ -1,14 +1,14 @@
-import * as socket from 'socket.io';
-import express from 'express';
+import express, { Request, response, Response } from 'express';
 
 const INDEX = '/index.html';
-const PORT = process.env.PORT || 5000
+const PORT = process.env.PORT || 3333
 
 const server = express()
     .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
-//   .listen(PORT, () => console.log(`Listening on ${PORT}`));
+    .get('/status', (req:Request, res:Response) => {
+        response.status(200).send('Tudo certo')
+    })
 
-// const io = socket(server)
 let http = require("http").createServer(server);
 let io = require("socket.io")(http);
 
@@ -47,3 +47,4 @@ io.on('connection', (socket:any) => {
 })
 
 http.listen(PORT);
+console.log(`http:localhost:${PORT}`)
