@@ -1,50 +1,66 @@
-import express, { Request, response, Response } from 'express';
+import { Server } from "socket.io";
 
-const INDEX = './index.html';
-const PORT = process.env.PORT || 3333
 
-const server = express()
-    .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
-    .get('/status', (req:Request, res:Response) => {
-        response.status(200).send('Tudo certo')
-    })
+const server = require('http').createServer();
+const PORT = Number(process.env.PORT) || 3333
+const io = new Server(server);
 
-let http = require("http").createServer(server);
-let io = require("socket.io")(http);
+interface Coordinate { lat: number, lng: number }
 
-io.on('connection', (socket:any) => {
+interface SocketDataType {
+    room: string,
+    marker: {
+        id: string,
+        name: string,
+        coordinates: { lat: number, lng: number },
+    },
+    destination: Coordinate
+    message: string,
+}
+
+
+io.on('connection', async client => {
 
     console.log(`[IO] server has a new connection`)
 
-    socket.on('coordinate.changed', (data:any) => {
-        console.log('🚀 - file: server.ts - line 20 - socket.on - data', data)
-        io.emit(`coordinate.changed${data.id}`, data)
+    client.on('create', (data: SocketDataType) => {
+
+        try {
+            console.log('create')
+            client.join(data.room)
+        } catch (error) {
+            console.log('Quebrou no create')
+        }
+
     })
 
-    socket.on('new.marker.connected', (data:any) => {
-        console.log('🚀 - file: server.js - line 25 - data', data)
-        io.emit(`new.marker.connected`, data)
+    client.on('join', (data: SocketDataType) => {
+
+        try {
+            console.log('join')
+            client.join(data.room)
+        } catch (error) {
+            console.log('Quebrou no join')
+        }
+
     })
 
-    socket.on('isReady', (id:number) => { 
-        console.log('🚀 - file: server.js - line 30 - data', id);
-        io.emit(`isReady${id}`)
+    client.on('req.coordinate.changed', (data: SocketDataType) => {
+
+        try {
+            console.log('coordinate.changed')
+            io.to(data.room).emit('res.coordinate.changed', data)
+        } catch (error) {
+            console.log('Quebrou no req.coordinate.changed')
+        }
+
     })
 
-    socket.on('ready', (entrega:any) => {
-        console.log('🚀 - file: server.js - line 34 - data', entrega)
-        io.emit(`ready${entrega.id}`, entrega)
+    client.on('disconnect', () => {
+        console.log('[IO] a server has disconnected')
     })
-
-    socket.on('driver.disconect', (data:{driver:{id: number, name: string}}) => {
-        io.emit('driver.disconect', data)
-    })
-
-    socket.on('disconnect', () => {
-        console.log('[SOCKET] a server has disconnected')
-    }) 
 
 })
 
-http.listen(PORT);
+io.listen(PORT);
 console.log(`http:localhost:${PORT}`)
