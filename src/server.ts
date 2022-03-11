@@ -1,6 +1,6 @@
 import express, { Request, response, Response } from 'express';
 
-const INDEX = '/index.html';
+const INDEX = './index.html';
 const PORT = process.env.PORT || 3333
 
 const server = express()

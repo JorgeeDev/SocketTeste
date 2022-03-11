@@ -1,10 +1,10 @@
 {
-  "name": "teste",
+  "name": "rastreio-server",
   "version": "1.0.0",
   "description": "servidor node de teste",
   "main": "server.ts",
   "scripts": {
-    "go": "nodemon src/server.ts",
+    "go": "nodemon src/server.ts --ignore-engines",
     "start": "tsc && node dist/server.js"
   },
   "author": "Luis Gustavo",
@@ -21,6 +21,6 @@
     "nodemon": "^2.0.7"
   },
   "engines": {
-    "node": "14.17.x"
+    "node": "17.1.x"
   }
 }
