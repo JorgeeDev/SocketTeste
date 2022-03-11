@@ -1,9 +1,23 @@
 import { Server } from "socket.io";
+import { instrument } from "@socket.io/admin-ui";
 
 
 const server = require('http').createServer();
 const PORT = Number(process.env.PORT) || 3333
-const io = new Server(server);
+const io = new Server(server, {
+    cors: {
+        origin: ["https://admin.socket.io"],
+        credentials: true
+    }
+});
+
+instrument(io, {
+    auth: {
+        type: "basic",
+        username: "root",
+        password: "$2a$12$c89AHxGH0rZtkXqt5uQl8.YFxcWjkHPWDWusT5WbFeHBU.zRn.Gje"
+    }
+});
 
 interface Coordinate { lat: number, lng: number }
 
@@ -63,4 +77,4 @@ io.on('connection', async client => {
 })
 
 io.listen(PORT);
-console.log(`http:localhost:${PORT}`)
+console.log(`http://localhost:${PORT}`)
