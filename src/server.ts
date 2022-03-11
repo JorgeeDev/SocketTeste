@@ -1,7 +1,6 @@
 import { Server } from "socket.io";
 import { instrument } from "@socket.io/admin-ui";
 
-
 const server = require('http').createServer();
 const PORT = Number(process.env.PORT) || 3333
 const io = new Server(server, {
@@ -15,7 +14,7 @@ instrument(io, {
     auth: {
         type: "basic",
         username: "root",
-        password: "$2a$12$c89AHxGH0rZtkXqt5uQl8.YFxcWjkHPWDWusT5WbFeHBU.zRn.Gje"
+        password: "$2a$12$o.qM4FuApwFXNFfS5HA0O.9Tjcf4vYqWa2ZWxp.F28BWFQ5kebfom"
     }
 });
 
@@ -40,7 +39,7 @@ io.on('connection', async client => {
     client.on('create', (data: SocketDataType) => {
 
         try {
-            console.log('create')
+            console.log('create', data.room)
             client.join(data.room)
         } catch (error) {
             console.log('Quebrou no create')
