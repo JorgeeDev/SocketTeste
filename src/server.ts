@@ -61,7 +61,6 @@ io.on('connection', async client => {
     client.on('req.coordinate.changed', (data: SocketDataType) => {
 
         try {
-            console.log('coordinate.changed')
             io.to(data.room).emit('res.coordinate.changed', data)
         } catch (error) {
             console.log('Quebrou no req.coordinate.changed')
