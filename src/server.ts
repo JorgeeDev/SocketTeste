@@ -1,8 +1,8 @@
-import { Server } from "socket.io";
 import { instrument } from "@socket.io/admin-ui";
-import { getRedis, setRedis } from "./redisConfig";
+import { Server } from "socket.io";
 const server = require('http').createServer();
-const PORT = Number(process.env.PORT) || 80
+const PORT = Number(process.env.PORT) || 3004
+const HOST = '192.168.101.4';
 const io = new Server(server, {
     cors: {
         origin: ["https://admin.socket.io"],
@@ -29,7 +29,19 @@ interface SocketDataType {
     message: string,
 }
 io.on('connection', async client => {
-    console.log(`[IO] server has a new connection`)
+    console.log(`[IO] Nova conexão: ${client.id}`);
+
+    client.on("isReady", (data: { room: string }) => {
+      try {
+        console.log(`[IO] Cliente pronto para a sala: ${data.room}`);
+        client.join(data.room); // Adiciona o cliente à sala especificada
+        io.to(data.room).emit("res.coordinate.changed", {
+          message: `Bem-vindo à sala ${data.room}`,
+        });
+      } catch (error) {
+        console.error("[IO] Erro no evento isReady:", error);
+      }
+    });
     client.on('create', (data: SocketDataType) => {
         try {
             console.log('create', data.room)
@@ -48,7 +60,6 @@ io.on('connection', async client => {
     })
     client.on('req.coordinate.changed', async (data: SocketDataType) => {
         try {
-            await setRedis(data.idMotorista, JSON.stringify(data))
             io.to(data.room).emit('res.coordinate.changed', data)
         } catch (error) {
             console.log('Quebrou no req.coordinate.changed')
@@ -57,17 +68,13 @@ io.on('connection', async client => {
     client.on("last.coordinates", async (data: SocketDataType) => {
         try {
             console.log("LAST COORDINATES: ", data)
-            const lastCoordinates = await getRedis(data.idMotorista)
-            const lastCoordinatesJson = await JSON.parse(lastCoordinates) as SocketDataType
-            console.log("LAST JSON:", lastCoordinatesJson)
-            io.to(data.room).emit("res.coordinate.changed", lastCoordinatesJson)
+            io.to(data.room).emit("res.coordinate.changed", "era o banco redis")
         } catch (error) {
             console.log("Quebrou no last.coordinates", error)
         }
     })
-    client.on('disconnect', () => {
-        console.log('[IO] a server has disconnected')
-    })
+
 })
-io.listen(PORT);
-console.log(`http://localhost:${PORT}`)
+server.listen(PORT, HOST, () => {
+    console.log(`Servidor rodando em http://${HOST}:${PORT}`);
+});
