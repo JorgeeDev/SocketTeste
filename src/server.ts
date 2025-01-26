@@ -1,8 +1,11 @@
 import { instrument } from "@socket.io/admin-ui";
 import { Server } from "socket.io";
-const server = require('http').createServer();
+const server = require('http').createServer((req:any, res:any) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('Hello from Node.js!');
+  }
+  );
 const PORT = Number(process.env.PORT) || 3004
-const HOST = '192.168.101.4';
 const io = new Server(server, {
     cors: {
         origin: ["https://admin.socket.io"],
@@ -75,6 +78,6 @@ io.on('connection', async client => {
     })
 
 })
-server.listen(PORT, HOST, () => {
+server.listen(PORT, () => {
     console.log(`Servidor rodando em http://${HOST}:${PORT}`);
 });
