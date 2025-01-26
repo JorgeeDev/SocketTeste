@@ -6,6 +6,7 @@ const server = require('http').createServer((req:any, res:any) => {
   }
   );
 const PORT = Number(process.env.PORT) || 3004
+const HOST = "0.0.0";
 const io = new Server(server, {
     cors: {
         origin: ["https://admin.socket.io"],
@@ -78,6 +79,6 @@ io.on('connection', async client => {
     })
 
 })
-server.listen(PORT, () => {
+server.listen(PORT, HOST, () => {
     console.log(`Servidor rodando em http://${HOST}:${PORT}`);
 });
